@@ -2,12 +2,14 @@ import pandas as pd
 import numpy as np
 import functools
 import pycountry
+import statsmodels.api as sm
+#from sklearn.linear_model import LinearRegression
 
 ### Following is intended as a future shared source of utility code
 
 visegrad = {'CZ': "Czech Republic", 'HU': "Hungary", 'PL': "Poland", 'SK': "Slovak Republic"}
-CEE_non_core = {'RO': 'Romania', 'BG': 'Bulgaria', 'EE': 'Estonia', 'LT': 'Lithuania', 'LV': 'Latvia', 'SI': 'Slovenia'}
-#eu_balkan = {'RO': 'Romania', 'BG': 'Bulgaria'}
+CEE_non_core = {'EE': 'Estonia', 'LT': 'Lithuania', 'LV': 'Latvia', 'SI': 'Slovenia'}
+eu_balkan = {'RO': 'Romania', 'BG': 'Bulgaria'}
 germany_plus = {'DE': 'Germany', 'AT': "Austria"}
 southern = {'IT': 'Italy', 'ES': 'Spain', 'PT': 'Portugal', 'GR': 'Greece'}
 west = {'NL': 'Netherlands', 'BE': 'Belgium', 'GB': 'Great Britain', 'UK': 'United Kingdom', 'FR': 'France', 'LU': 'Luxembourg', 'IR': 'Ireland'}
@@ -72,10 +74,22 @@ def get_regions(df, country_col):
                                      np.where(df[country_col].isin(germany_plus), 'DE_AT',
                                               np.where(df[country_col].isin(west), 'west', 
                                                        np.where(df[country_col].isin(north), 'north',
-                                                                np.where(df[country_col].isin(CEE_non_core), 'CEE_non_core', 'rest')
-                                                                )
+                                                                np.where(df[country_col].isin(CEE_non_core), 'CEE_non_core',
+                                                                                np.where(df[country_col].isin(eu_balkan), 'balkan', 'rest')
+                                                                        )
+                                                               )
                                                       )
                                               )
                                     )
                             )
     return df
+
+
+def plot_ols_trend(endog, exog, ax):
+    x = sm.add_constant(exog)
+
+    regression = sm.OLS(endog, x)
+    olsres = regression.fit()
+    #print(olsres.summary())
+    print(olsres.params)
+    return sm.graphics.abline_plot(model_results=olsres, ax=ax)
