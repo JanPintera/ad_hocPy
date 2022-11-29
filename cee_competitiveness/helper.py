@@ -90,6 +90,6 @@ def plot_ols_trend(endog, exog, ax):
 
     regression = sm.OLS(endog, x)
     olsres = regression.fit()
-    #print(olsres.summary())
     print(olsres.params)
+    print(f'ULC variable p-value: {olsres.pvalues[1]}')
     return sm.graphics.abline_plot(model_results=olsres, ax=ax)
